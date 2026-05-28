@@ -1,0 +1,52 @@
+{
+  "posters": [
+    {
+      "id": "p_aoi",
+      "name": "あおいの旅ログ",
+      "platforms": [
+        { "kind": "youtube", "profileUrl": "https://youtube.com/@aoi" },
+        { "kind": "x", "profileUrl": "https://x.com/aoi" }
+      ]
+    },
+    {
+      "id": "p_taku",
+      "name": "タクの飯テロ",
+      "platforms": [
+        { "kind": "tiktok", "profileUrl": "https://tiktok.com/@taku" }
+      ]
+    }
+  ],
+  "places": [
+    {
+      "id": "pl_001",
+      "name": "喫茶アンデス",
+      "address": "東京都渋谷区道玄坂2-10-7",
+      "lat": 35.6586, "lng": 139.6995,
+      "category": "cafe",
+      "mentions": [
+        { "posterId": "p_aoi", "url": "https://youtube.com/watch?v=abc123", "timestampSec": 754 }
+      ]
+    },
+    {
+      "id": "pl_002",
+      "name": "豚そば 月や",
+      "address": "東京都新宿区西新宿1-12",
+      "lat": 35.6918, "lng": 139.6995,
+      "category": "restaurant",
+      "mentions": [
+        { "posterId": "p_taku", "url": "https://tiktok.com/@taku/video/xyz", "timestampSec": 32 },
+        { "posterId": "p_aoi", "url": "https://youtube.com/watch?v=def456" }
+      ]
+    },
+    {
+      "id": "pl_003",
+      "name": "東京都庭園美術館",
+      "address": "東京都港区白金台5-21-9",
+      "lat": 35.6394, "lng": 139.7188,
+      "category": "exhibition",
+      "mentions": [
+        { "posterId": "p_aoi", "url": "https://youtube.com/watch?v=ghi789", "timestampSec": 245 }
+      ]
+    }
+  ]
+}

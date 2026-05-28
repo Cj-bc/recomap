@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
+  <title>配信スポットマップ</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <style>
+    html, body, #app { margin: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+    .app { display: flex; flex-direction: column; height: 100vh; }
+    .search-bar { display: flex; gap: 8px; padding: 8px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.08); z-index: 1000; }
+    .search-bar input { flex: 1; padding: 10px; font-size: 16px; border: 1px solid #d1d5db; border-radius: 6px; }
+    .search-bar button { padding: 10px 14px; background: #2563eb; color: #fff; border: 0; border-radius: 6px; }
+    .filters { display: flex; gap: 6px; padding: 8px; overflow-x: auto; background: #fff; }
+    .chip { padding: 6px 12px; border-radius: 16px; border: 1px solid #d1d5db; background: #fff; font-size: 14px; white-space: nowrap; }
+    .chip-on { background: #2563eb; color: #fff; border-color: #2563eb; }
+    leaflet-map { display: block; flex: 1; min-height: 0; }
+    .place-detail { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; padding: 16px; border-radius: 16px 16px 0 0; box-shadow: 0 -4px 12px rgba(0,0,0,.15); }
+    .place-detail .close { position: absolute; right: 12px; top: 12px; background: none; border: 0; font-size: 24px; }
+    .place-detail h2 { margin: 0 0 4px; }
+    .place-detail .address, .place-detail .category { margin: 4px 0; color: #4b5563; }
+    .mentions { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .mentions a { color: #2563eb; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="public/leaflet-map.js"></script>
+  <script src="elm.js"></script>
+  <script>
+    const app = Elm.Main.init({ node: document.getElementById('app') });
+
+    app.ports.requestLocation.subscribe(() => {
+      if (!navigator.geolocation) {
+        app.ports.receiveLocationRaw.send(null);
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => app.ports.receiveLocationRaw.send({
+          lat: pos.coords.latitude, lng: pos.coords.longitude,
+        }),
+        () => app.ports.receiveLocationRaw.send(null),
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+      );
+    });
+    
+    app.ports.saveFavoritesRaw.subscribe((ids) => {
+      try { localStorage.setItem('favoritePosters', JSON.stringify(ids)); }
+      catch (e) { console.warn(e); }
+    });
+    
+    try {
+      const stored = JSON.parse(localStorage.getItem('favoritePosters') || '[]');
+      if (Array.isArray(stored) && stored.length > 0) {
+        queueMicrotask(() => app.ports.loadFavoritesRaw.send(stored));
+      }
+    } catch (e) { console.warn(e); }
+  </script>
+</body>
+</html>>

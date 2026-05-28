@@ -1,0 +1,31 @@
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
+  };
+
+  outputs = { nixpkgs, ... }:
+      let
+        eachSystems = systems: op:
+          builtins.zipAttrsWith (name: values: builtins.foldl' (acc: v: acc // v) {} values) (builtins.map op systems);
+
+      in eachSystems ["x86_64-linux" "aarch64-linux"] (system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+          elmTools = with pkgs.elmPackages; [
+            elm
+            elm-format
+            elm-json
+            elm-review
+            elm-test
+            elm-verify-examples
+          ];
+        in {
+          devShells.default = pkgs.mkShell {
+            buildInputs = with pkgs; elmTools;
+          };
+
+          apps = {
+          };
+        }
+      );
+}
