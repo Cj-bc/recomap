@@ -20,7 +20,7 @@
             elm-verify-examples
           ];
         in {
-          devShells.default = pkgs.mkShell {
+          devShells.${system}.default = pkgs.mkShell {
             buildInputs = with pkgs; elmTools;
           };
 
