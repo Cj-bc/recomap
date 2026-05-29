@@ -286,6 +286,10 @@ encodeMarker p =
         , ( "category", Encode.string (categoryToString p.category) )
         ]
 
+encodeMarkers : List Place -> Encode.Value
+encodeMarkers places =
+    Encode.list encodeMarker places
+
 encodeFlyTo : Maybe FlyTo -> Encode.Value
 encodeFlyTo ft =
     case ft of
