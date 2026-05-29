@@ -238,7 +238,7 @@ viewSelectedPlace model =
                         , Attr.style "left" "0"
                         , Attr.style "right" "0"
                         , Attr.style "bottom" "0"
-                        , Attr.style "z-index" "1100"
+                        , Attr.style "z-index" "99999"
                         , Attr.style "background" "white"
                         , Attr.style "padding" "16px 20px"
                         , Attr.style "box-shadow" "0 -2px 12px rgba(0,0,0,0.2)"
