@@ -32,4 +32,4 @@ saveFavorites ids =
 
 loadFavorites : (List PosterId -> msg) -> Sub msg
 loadFavorites toMsg =
-    loadFavoritesRaw (List.map PosterId >> toMsg)g
+    loadFavoritesRaw (List.map PosterId >> toMsg)

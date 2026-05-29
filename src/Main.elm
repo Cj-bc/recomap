@@ -286,18 +286,6 @@ encodeMarker p =
         , ( "category", Encode.string (categoryToString p.category) )
         ]
 
-
-encodeMarker : Place -> Encode.Value
-encodeMarker p =
-    Encode.object
-        [ ( "id", Encode.string (placeIdToString p.id) )
-        , ( "name", Encode.string p.name )
-        , ( "lat", Encode.float p.lat )
-        , ( "lng", Encode.float p.lng )
-        , ( "category", Encode.string (categoryToString p.category) )
-        ]
-
-
 encodeFlyTo : Maybe FlyTo -> Encode.Value
 encodeFlyTo ft =
     case ft of

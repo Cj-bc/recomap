@@ -166,4 +166,4 @@ placeDecoder =
         |> required "address" Decode.string
         |> custom latLngFlatDecoder
         |> required "category" categoryDecoder
-        |> required "mentions" (Decode.list mentionDecoder))
+        |> required "mentions" (Decode.list mentionDecoder)
