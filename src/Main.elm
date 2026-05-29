@@ -232,10 +232,30 @@ viewSelectedPlace model =
         ( Just pid, Success db ) ->
             case List.filter (\p -> p.id == pid) db.places |> List.head of
                 Just place ->
-                    div [ Attr.class "place-detail" ]
+                    div
+                        [ Attr.class "place-detail"
+                        , Attr.style "position" "fixed"
+                        , Attr.style "left" "0"
+                        , Attr.style "right" "0"
+                        , Attr.style "bottom" "0"
+                        , Attr.style "z-index" "1100"
+                        , Attr.style "background" "white"
+                        , Attr.style "padding" "16px 20px"
+                        , Attr.style "box-shadow" "0 -2px 12px rgba(0,0,0,0.2)"
+                        , Attr.style "border-radius" "12px 12px 0 0"
+                        , Attr.style "max-height" "50vh"
+                        , Attr.style "overflow-y" "auto"
+                        ]
                         [ button
                             [ Attr.class "close"
                             , Events.onClick DismissSelected
+                            , Attr.style "position" "absolute"
+                            , Attr.style "top" "8px"
+                            , Attr.style "right" "8px"
+                            , Attr.style "border" "none"
+                            , Attr.style "background" "transparent"
+                            , Attr.style "font-size" "24px"
+                            , Attr.style "cursor" "pointer"
                             ]
                             [ text "×" ]
                         , Html.h2 [] [ text place.name ]
