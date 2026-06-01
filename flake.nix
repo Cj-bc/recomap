@@ -32,6 +32,12 @@
                 "${pkgs.elmPackages.elm}/bin/elm make --output=elm.js src/Main.elm"
               );
             };
+            format = {
+              type = "app";
+              program = toString (pkgs.writeShellScript "format-css" ''
+                ${pkgs.deno}/bin/deno fmt style.css
+              '');
+            };
           };
         }
       );
