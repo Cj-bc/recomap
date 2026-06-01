@@ -24,7 +24,14 @@
             buildInputs = with pkgs; elmTools;
           };
 
-          apps = {
+          apps.${system} = {
+            make = {
+              type = "app";
+              program = toString (pkgs.writeShellScript
+                "make"
+                "${pkgs.elmPackages.elm}/bin/elm make --output=elm.js src/Main.elm"
+              );
+            };
           };
         }
       );
