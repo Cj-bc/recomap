@@ -28,6 +28,7 @@ class LeafletMap extends HTMLElement {
     this._cluster = L.markerClusterGroup();
     this._map.addLayer(this._cluster);
 
+    this._initDoubleTapHoldZoom();
     this._renderMarkers();
     this._applyFlyTo();
   }
@@ -72,6 +73,76 @@ class LeafletMap extends HTMLElement {
       });
       this._cluster.addLayer(marker);
     }
+  }
+
+  _initDoubleTapHoldZoom() {
+    const mapEl = this;
+    let lastTapTime = 0;
+    let isHolding = false;
+    let tapContainerPoint = null;
+    let startY = 0;
+    let startZoom = 0;
+
+    const DOUBLE_TAP_MS = 300;
+    const ZOOM_SENSITIVITY = 0.02; // zoom levels per pixel
+
+    mapEl.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) {
+        isHolding = false;
+        return;
+      }
+
+      const now = Date.now();
+      const touch = e.touches[0];
+
+      if (now - lastTapTime < DOUBLE_TAP_MS) {
+        e.preventDefault();
+        isHolding = true;
+        startY = touch.clientY;
+        startZoom = this._map.getZoom();
+
+        const rect = mapEl.getBoundingClientRect();
+        tapContainerPoint = L.point(
+          touch.clientX - rect.left,
+          touch.clientY - rect.top
+        );
+
+        this._map.dragging.disable();
+      } else {
+        isHolding = false;
+      }
+
+      lastTapTime = now;
+    }, { passive: false });
+
+    mapEl.addEventListener('touchmove', (e) => {
+      if (!isHolding || e.touches.length !== 1) return;
+      e.preventDefault();
+
+      const touch = e.touches[0];
+      const deltaY = startY - touch.clientY; // 上方向 = 正 = ズームイン
+      const newZoom = startZoom + deltaY * ZOOM_SENSITIVITY;
+
+      // タップした地点が画面上の同じ位置に留まるよう中心を計算
+      const tapLatLng = this._map.containerPointToLatLng(tapContainerPoint);
+      const tapProjNew = this._map.project(tapLatLng, newZoom);
+      const halfSize = this._map.getSize().divideBy(2);
+      const newCenter = this._map.unproject(
+        tapProjNew.subtract(tapContainerPoint).add(halfSize),
+        newZoom
+      );
+
+      this._map.setView(newCenter, newZoom, { animate: false });
+    }, { passive: false });
+
+    const endHold = () => {
+      if (!isHolding) return;
+      isHolding = false;
+      this._map.dragging.enable();
+    };
+
+    mapEl.addEventListener('touchend', endHold);
+    mapEl.addEventListener('touchcancel', endHold);
   }
 
   _applyFlyTo() {
