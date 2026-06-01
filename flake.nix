@@ -21,7 +21,7 @@
           ];
         in {
           devShells.${system}.default = pkgs.mkShell {
-            buildInputs = with pkgs; elmTools;
+            buildInputs = with pkgs; elmTools ++ [ deno ];
           };
 
           apps.${system} = {
