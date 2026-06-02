@@ -59,6 +59,11 @@ class LeafletMap extends HTMLElement {
         startY = touch.clientY;
         startZoom = this._map.getZoom();
         currentZoom = startZoom;
+        // タップ位置を地図座標に変換して拡縮の中心に固定
+        this._zoomCenter = this._map.containerPointToLatLng(
+          L.point(touch.clientX - this.getBoundingClientRect().left,
+                  touch.clientY - this.getBoundingClientRect().top)
+        );
 
         this._map.dragging.disable();
         e.preventDefault();
@@ -81,8 +86,7 @@ class LeafletMap extends HTMLElement {
       currentZoom = Math.max(1, Math.min(19, startZoom + delta));
 
       // Use the same CSS-transform path as pinch zoom — no tile reload during drag
-      const center = this._map.getCenter();
-      this._map._animateZoom(center, currentZoom, false, true);
+      this._map._animateZoom(this._zoomCenter, currentZoom, false, true);
     };
 
     const onTouchEnd = (e) => {
@@ -91,9 +95,8 @@ class LeafletMap extends HTMLElement {
       this._map.dragging.enable();
 
       // Snap to final zoom with smooth animation (tiles reload once here)
-      const center = this._map.getCenter();
       const finalZoom = this._map._limitZoom(currentZoom);
-      this._map._animateZoom(center, finalZoom, true, true);
+      this._map._animateZoom(this._zoomCenter, finalZoom, true, true);
     };
 
     // Use capture to intercept before Leaflet's own handlers
