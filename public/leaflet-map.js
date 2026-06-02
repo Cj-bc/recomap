@@ -87,9 +87,18 @@ class LeafletMap extends HTMLElement {
     const DOUBLE_TAP_MS = 300;
     const ZOOM_SENSITIVITY = 0.02; // zoom levels per pixel
 
+    const cancelHold = () => {
+      if (!isHolding) return;
+      isHolding = false;
+      this._map.dragging.enable();
+      this._map.doubleClickZoom.enable();
+    };
+
     mapEl.addEventListener('touchstart', (e) => {
-      if (e.touches.length !== 1) {
-        isHolding = false;
+      // 2本指になったらホールドをキャンセルし、Leaflet のピンチズームに委ねる
+      if (e.touches.length > 1) {
+        cancelHold();
+        lastTapTime = 0; // ピンチ後に誤ってダブルタップと判定されないようリセット
         return;
       }
 
@@ -111,6 +120,8 @@ class LeafletMap extends HTMLElement {
         tapLatLng = this._map.containerPointToLatLng(tapContainerPoint);
 
         this._map.dragging.disable();
+        // Leaflet 組み込みのダブルタップズームと競合しないよう無効化
+        this._map.doubleClickZoom.disable();
       } else {
         isHolding = false;
       }
@@ -137,14 +148,8 @@ class LeafletMap extends HTMLElement {
       this._map.setView(newCenter, newZoom, { animate: false });
     }, { passive: false });
 
-    const endHold = () => {
-      if (!isHolding) return;
-      isHolding = false;
-      this._map.dragging.enable();
-    };
-
-    mapEl.addEventListener('touchend', endHold);
-    mapEl.addEventListener('touchcancel', endHold);
+    mapEl.addEventListener('touchend', cancelHold);
+    mapEl.addEventListener('touchcancel', cancelHold);
   }
 
   _applyFlyTo() {
