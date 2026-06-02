@@ -28,8 +28,75 @@ class LeafletMap extends HTMLElement {
     this._cluster = L.markerClusterGroup();
     this._map.addLayer(this._cluster);
 
+    this._setupDoubleTapZoom();
+
     this._renderMarkers();
     this._applyFlyTo();
+  }
+
+  _setupDoubleTapZoom() {
+    // State for double-tap-hold detection
+    let lastTapTime = 0;
+    let lastTapY = 0;
+    let doubleTapActive = false;
+    let startY = 0;
+    let startZoom = 0;
+    // Sensitivity: pixels per zoom level
+    const PIXELS_PER_ZOOM = 80;
+    const DOUBLE_TAP_DELAY = 300;
+
+    const onTouchStart = (e) => {
+      if (e.touches.length !== 1) {
+        doubleTapActive = false;
+        return;
+      }
+
+      const touch = e.touches[0];
+      const now = Date.now();
+      const dy = Math.abs(touch.clientY - lastTapY);
+
+      if (now - lastTapTime < DOUBLE_TAP_DELAY && dy < 30) {
+        // Second tap detected — begin double-tap-hold zoom
+        doubleTapActive = true;
+        startY = touch.clientY;
+        startZoom = this._map.getZoom();
+
+        // Disable map drag during gesture
+        this._map.dragging.disable();
+        // Prevent the default double-tap zoom Leaflet would do
+        e.preventDefault();
+        e.stopPropagation();
+      } else {
+        doubleTapActive = false;
+      }
+
+      lastTapTime = now;
+      lastTapY = touch.clientY;
+    };
+
+    const onTouchMove = (e) => {
+      if (!doubleTapActive || e.touches.length !== 1) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const touch = e.touches[0];
+      // Drag up → zoom in, drag down → zoom out (matches Google Maps)
+      const delta = (startY - touch.clientY) / PIXELS_PER_ZOOM;
+      const newZoom = Math.max(1, Math.min(19, startZoom + delta));
+      this._map.setZoom(newZoom, { animate: false });
+    };
+
+    const onTouchEnd = (e) => {
+      if (!doubleTapActive) return;
+      doubleTapActive = false;
+      this._map.dragging.enable();
+    };
+
+    // Use capture to intercept before Leaflet's own handlers
+    this.addEventListener('touchstart', onTouchStart, { passive: false, capture: true });
+    this.addEventListener('touchmove', onTouchMove, { passive: false, capture: true });
+    this.addEventListener('touchend', onTouchEnd, { capture: true });
+    this.addEventListener('touchcancel', onTouchEnd, { capture: true });
   }
 
   disconnectedCallback() {
