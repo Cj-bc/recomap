@@ -18,7 +18,7 @@ class LeafletMap extends HTMLElement {
     const center = this._parseInitialCenter();
     const zoom = parseInt(this.getAttribute('initial-zoom') || '13', 10);
 
-    this._map = L.map(this).setView(center, zoom);
+    this._map = L.map(this, { zoomSnap: 0 }).setView(center, zoom);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
