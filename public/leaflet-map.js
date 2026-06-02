@@ -35,13 +35,12 @@ class LeafletMap extends HTMLElement {
   }
 
   _setupDoubleTapZoom() {
-    // State for double-tap-hold detection
     let lastTapTime = 0;
     let lastTapY = 0;
     let doubleTapActive = false;
     let startY = 0;
     let startZoom = 0;
-    // Sensitivity: pixels per zoom level
+    let currentZoom = 0;
     const PIXELS_PER_ZOOM = 80;
     const DOUBLE_TAP_DELAY = 300;
 
@@ -56,14 +55,12 @@ class LeafletMap extends HTMLElement {
       const dy = Math.abs(touch.clientY - lastTapY);
 
       if (now - lastTapTime < DOUBLE_TAP_DELAY && dy < 30) {
-        // Second tap detected — begin double-tap-hold zoom
         doubleTapActive = true;
         startY = touch.clientY;
         startZoom = this._map.getZoom();
+        currentZoom = startZoom;
 
-        // Disable map drag during gesture
         this._map.dragging.disable();
-        // Prevent the default double-tap zoom Leaflet would do
         e.preventDefault();
         e.stopPropagation();
       } else {
@@ -80,16 +77,23 @@ class LeafletMap extends HTMLElement {
       e.stopPropagation();
 
       const touch = e.touches[0];
-      // Drag up → zoom in, drag down → zoom out (matches Google Maps)
       const delta = (startY - touch.clientY) / PIXELS_PER_ZOOM;
-      const newZoom = Math.max(1, Math.min(19, startZoom + delta));
-      this._map.setZoom(newZoom, { animate: false });
+      currentZoom = Math.max(1, Math.min(19, startZoom + delta));
+
+      // Use the same CSS-transform path as pinch zoom — no tile reload during drag
+      const center = this._map.getCenter();
+      this._map._animateZoom(center, currentZoom, false, true);
     };
 
     const onTouchEnd = (e) => {
       if (!doubleTapActive) return;
       doubleTapActive = false;
       this._map.dragging.enable();
+
+      // Snap to final zoom with smooth animation (tiles reload once here)
+      const center = this._map.getCenter();
+      const finalZoom = this._map._limitZoom(currentZoom);
+      this._map._animateZoom(center, finalZoom, true, true);
     };
 
     // Use capture to intercept before Leaflet's own handlers
