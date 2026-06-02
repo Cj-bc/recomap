@@ -80,6 +80,7 @@ class LeafletMap extends HTMLElement {
     let lastTapTime = 0;
     let isHolding = false;
     let tapContainerPoint = null;
+    let tapLatLng = null; // ジェスチャー開始時に一度だけ確定させる
     let startY = 0;
     let startZoom = 0;
 
@@ -106,6 +107,8 @@ class LeafletMap extends HTMLElement {
           touch.clientX - rect.left,
           touch.clientY - rect.top
         );
+        // 地図の状態が変わる前に lat/lng を確定。以降は再計算しない
+        tapLatLng = this._map.containerPointToLatLng(tapContainerPoint);
 
         this._map.dragging.disable();
       } else {
@@ -123,8 +126,7 @@ class LeafletMap extends HTMLElement {
       const deltaY = startY - touch.clientY; // 上方向 = 正 = ズームイン
       const newZoom = startZoom + deltaY * ZOOM_SENSITIVITY;
 
-      // タップした地点が画面上の同じ位置に留まるよう中心を計算
-      const tapLatLng = this._map.containerPointToLatLng(tapContainerPoint);
+      // 固定した tapLatLng が常に tapContainerPoint の位置に来るよう中心を計算
       const tapProjNew = this._map.project(tapLatLng, newZoom);
       const halfSize = this._map.getSize().divideBy(2);
       const newCenter = this._map.unproject(
