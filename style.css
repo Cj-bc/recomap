@@ -1,0 +1,94 @@
+html,
+body,
+#app {
+  margin: 0;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.search-bar {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  z-index: 1000;
+}
+.search-bar input {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+.search-bar button {
+  padding: 10px 14px;
+  background: #2563eb;
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+}
+.filters {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  overflow-x: auto;
+  background: #fff;
+}
+.chip {
+  padding: 6px 12px;
+  border-radius: 16px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.chip-on {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+leaflet-map {
+  display: block;
+  flex: 1;
+  min-height: 0;
+}
+.place-detail {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  padding: 16px;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+}
+.place-detail .close {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  background: none;
+  border: 0;
+  font-size: 24px;
+}
+.place-detail h2 {
+  margin: 0 0 4px;
+}
+.place-detail .address,
+.place-detail .category {
+  margin: 4px 0;
+  color: #4b5563;
+}
+.mentions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+.mentions a {
+  color: #2563eb;
+}

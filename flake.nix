@@ -21,7 +21,7 @@
           ];
         in {
           devShells.${system}.default = pkgs.mkShell {
-            buildInputs = with pkgs; elmTools;
+            buildInputs = with pkgs; elmTools ++ [ deno ];
           };
 
           apps.${system} = {
@@ -31,6 +31,12 @@
                 "make"
                 "${pkgs.elmPackages.elm}/bin/elm make --output=elm.js src/Main.elm"
               );
+            };
+            format = {
+              type = "app";
+              program = toString (pkgs.writeShellScript "format-css" ''
+                ${pkgs.deno}/bin/deno fmt style.css
+              '');
             };
           };
         }
