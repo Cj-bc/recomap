@@ -28,8 +28,82 @@ class LeafletMap extends HTMLElement {
     this._cluster = L.markerClusterGroup();
     this._map.addLayer(this._cluster);
 
+    this._setupDoubleTapZoom();
+
     this._renderMarkers();
     this._applyFlyTo();
+  }
+
+  _setupDoubleTapZoom() {
+    let lastTapTime = 0;
+    let lastTapY = 0;
+    let doubleTapActive = false;
+    let startY = 0;
+    let startZoom = 0;
+    let currentZoom = 0;
+    const PIXELS_PER_ZOOM = 80;
+    const DOUBLE_TAP_DELAY = 300;
+
+    const onTouchStart = (e) => {
+      if (e.touches.length !== 1) {
+        doubleTapActive = false;
+        return;
+      }
+
+      const touch = e.touches[0];
+      const now = Date.now();
+      const dy = Math.abs(touch.clientY - lastTapY);
+
+      if (now - lastTapTime < DOUBLE_TAP_DELAY && dy < 30) {
+        doubleTapActive = true;
+        startY = touch.clientY;
+        startZoom = this._map.getZoom();
+        currentZoom = startZoom;
+        // タップ位置を地図座標に変換して拡縮の中心に固定
+        this._zoomCenter = this._map.containerPointToLatLng(
+          L.point(touch.clientX - this.getBoundingClientRect().left,
+                  touch.clientY - this.getBoundingClientRect().top)
+        );
+
+        this._map.dragging.disable();
+        e.preventDefault();
+        e.stopPropagation();
+      } else {
+        doubleTapActive = false;
+      }
+
+      lastTapTime = now;
+      lastTapY = touch.clientY;
+    };
+
+    const onTouchMove = (e) => {
+      if (!doubleTapActive || e.touches.length !== 1) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const touch = e.touches[0];
+      const delta = (startY - touch.clientY) / PIXELS_PER_ZOOM;
+      currentZoom = Math.max(1, Math.min(19, startZoom + delta));
+
+      // Use the same CSS-transform path as pinch zoom — no tile reload during drag
+      this._map._animateZoom(this._zoomCenter, currentZoom, false, true);
+    };
+
+    const onTouchEnd = (e) => {
+      if (!doubleTapActive) return;
+      doubleTapActive = false;
+      this._map.dragging.enable();
+
+      // Snap to final zoom with smooth animation (tiles reload once here)
+      const finalZoom = this._map._limitZoom(currentZoom);
+      this._map._animateZoom(this._zoomCenter, finalZoom, true, true);
+    };
+
+    // Use capture to intercept before Leaflet's own handlers
+    this.addEventListener('touchstart', onTouchStart, { passive: false, capture: true });
+    this.addEventListener('touchmove', onTouchMove, { passive: false, capture: true });
+    this.addEventListener('touchend', onTouchEnd, { capture: true });
+    this.addEventListener('touchcancel', onTouchEnd, { capture: true });
   }
 
   disconnectedCallback() {
