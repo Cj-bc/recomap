@@ -38,6 +38,17 @@
                 ${pkgs.deno}/bin/deno fmt style.css
               '');
             };
+            vendor = {
+              type = "app";
+              program = toString (pkgs.writeShellScript "vendor" ''
+                ${pkgs.deno}/bin/deno run \
+                  --allow-net=registry.npmjs.org \
+                  --allow-read \
+                  --allow-write=public/vendor \
+                  --allow-run=tar \
+                  scripts/vendor.ts
+              '');
+            };
           };
         }
       );
