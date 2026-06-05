@@ -1,0 +1,14 @@
+.gitattributes text
+.gitignore text
+
+*.elm text
+*.html text
+*.css text
+*.nix text
+*.md text
+*.json text
+*.js text
+*.ts text
+
+flake.lock text
+LICENSES/* text
