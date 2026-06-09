@@ -11,6 +11,8 @@
       in eachSystems ["x86_64-linux" "aarch64-linux"] (system:
         let
           pkgs = import nixpkgs { inherit system; };
+          leaflet = pkgs.callPackage ./nix/leaflet.nix { };
+          markercluster = pkgs.callPackage ./nix/leaflet-markercluster.nix { };
           elmTools = with pkgs.elmPackages; [
             elm
             elm-format
@@ -36,6 +38,14 @@
               type = "app";
               program = toString (pkgs.writeShellScript "format-css" ''
                 ${pkgs.deno}/bin/deno fmt style.css
+              '');
+            };
+            vendor = {
+              type = "app";
+              program = toString (pkgs.writeShellScript "vendor" ''
+                mkdir -p public/vendor
+                cp ${leaflet}/* public/vendor/
+                cp ${markercluster}/* public/vendor/
               '');
             };
           };
