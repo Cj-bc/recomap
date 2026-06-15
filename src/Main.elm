@@ -158,9 +158,9 @@ subscriptions _ =
 view : Model -> Html Msg
 view model =
     div [ Attr.class "app" ]
-        [ viewSearchBar model
+        [ viewMap model
         , viewCategoryFilters model
-        , viewMap model
+        , viewSearchBar model
         , viewSelectedPlace model
         ]
 
